@@ -1,0 +1,176 @@
+---
+- name: Provision Red Hat Server
+  hosts: all
+  become: true
+  vars:
+    proxy_hostname: 10.199.11.11
+    proxy_port: '8080'
+  tasks:
+  - name: Stop service firewalld, if started
+    service:
+      name: firewalld
+      state: stopped
+      # - name: disable service firewalld, if started
+      #   service:
+      #     name: firewalld
+      #     state: disabled
+  - name: system status firewalld
+    shell: systemctl is-active firewalld
+    register: status
+    ignore_errors: true
+  - debug:
+      msg: status
+  - name: Disable SELinux
+    command: setenforce 0
+  - name: Modify SELinux Configuration
+    lineinfile:
+      path: "/etc/sysconfig/selinux"
+      line: SELINUX=disabled
+  - name: Load br_netfilter Kernel Module
+    modprobe:
+      name: br_netfilter
+  - name: set Proxy hostname
+    lineinfile:
+      path: "/etc/rhsm/rhsm.conf"
+      regexp: "^proxy_hostname\\s*="
+      line: proxy_hostname = {{ proxy_hostname }}
+  - name: Set Proxy Settings in rhsm.conf
+    lineinfile:
+      path: "/etc/rhsm/rhsm.conf"
+      regexp: "proxy_port\\s*="
+      line: proxy_port = {{ proxy_port }}
+  - name: Restart Subscription Manager
+    service:
+      name: rhsmcertd
+      state: restarted
+
+  - name: unregister Subscription Manager
+    shell: " subscription-manager unregister && subscription-manager remove --all && subscription-manager clean && subscription-manager refresh"
+    ignore_errors: true
+
+  - name: Register as user (joe_user) with password (somepass) and auto-subscribe to available content.
+    redhat_subscription:
+      state: present
+      username: federalbank@123
+      password: Redhat@123
+      auto_attach: true
+  - name: Update CA Trust
+    command: update-ca-trust
+    async: 300
+    poll: 0
+    ignore_errors: true
+  - name: Add Hosts Entries
+    lineinfile:
+      dest: "/etc/hosts"
+      line: "{{ item }}"
+    with_items:
+    - 10.250.44.86  sitranchermaster1.kubes.federalbank.co.in
+  - name: Set Hostname
+    hostname:
+      name: sitranchermaster1.kubes.federalbank.co.in
+  - name: Update .bashrc with Proxy Settings
+    blockinfile:
+      path: "~/.bashrc"
+      marker: "# {mark} Ansible managed block - Do NOT edit manually"
+      block: |
+        export http_proxy="10.199.11.11:8080"
+        export https_proxy="10.199.11.11:8080"
+        printf -v lan '%s,' 10.250.44.{1..253}
+        printf -v pool '%s,' 10.42.{1..6}.{1..253}
+        printf -v service '%s,' 10.43.0.{1..253}
+        export no_proxy="${lan%,},${service%,},${pool%,},kubernetes.default.svc,10.96.0.1,10.43.0.1,127.0.0.1,10.199.14.222,10.250.44.53,10.250.24.201,10.250.44.31,10.250.44.42,registry.gitlab.federalbank.co.in,10.250.24.178,10.250.24.179,10.250.24.180,10.250.24.236,uatrancher.kubes.federalbank.co.in,10.250.44.30,10.250.44.26,fbuatk8s.kubes.federalbank.co.ini,nexusuat.kubes.federalbank.co.in,nriaccountopeninguat.kubes.federalbank.co.in,byomwasuat.kubes.federalbank.co.in,gitlabuat.kubes.federalbank.co.in,nexuspre.kubes.federalbank.co.in,nriapplicationpre.kubes.federalbank.co.in,byomwaspre.kubes.federalbank.co.in,10.199.34.12,nriapplicationuat.kubes.federalbank.co.in,adminpre.kubes.federalbank.co.in,adminuat.kubes.federalbank.co.in,localhost,10.43.60.18,accinqpre.kubes.federalbank.co.in,accinquat.kubes.federalbank.co.in,dsscuat.kubes.federalbank.co.in,dsscuat.kubes.federalbank.co.in,10.199.14.222,aafipuat.kubes.federalbank.co.in,aafipuat2.kubes.federalbank.co.in,uatgateway.federalbank.co.in,obsecretquestuat.kubes.federalbank.co.in"
+        export NO_PROXY=$no_proxy
+        export HTTP_PROXY=$http_proxy
+        export HTTPS_PROXY=$https_proxy
+        #create: true
+  - name: Source the Updated .bashrc
+    shell: source ~/.bashrc
+
+  - name: Install Required Packages
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+    - telnet
+
+
+  - name: Check existing block devices
+    shell: lsblk
+    register: lsblk_output
+    changed_when: false
+
+  - name: Create physical volume
+    shell: pvcreate /dev/sdb
+    when: "'ranchervg' not in lsblk_output.stdout"
+
+  - name: Create volume group
+    shell: vgcreate ranchervg /dev/sdb
+    when: "'ranchervg' not in lsblk_output.stdout"
+
+  - name: Create logical volume
+    shell: lvcreate -n rancherlv -l 100%FREE ranchervg --yes
+    when: "'rancherlv' not in lsblk_output.stdout"
+
+
+  - name: Create XFS filesystem
+    shell: mkfs.xfs /dev/ranchervg/rancherlv
+    changed_when: false
+
+  - name: Create directory for mount point
+    file:
+      path: /var/lib/rancher
+      state: directory
+
+  - name: Mount logical volume
+    mount:
+      path: /var/lib/rancher
+      src: /dev/ranchervg/rancherlv
+      fstype: xfs
+      state: mounted
+    changed_when: false
+
+  - name: Add entry to /etc/fstab
+    lineinfile:
+      path: /etc/fstab
+      line: "/dev/ranchervg/rancherlv /var/lib/rancher xfs defaults 0 0"
+    changed_when: false
+
+  - name: Update partition table
+    shell: partprobe
+    changed_when: false
+
+  - name: List fstab entries
+    command: cat /etc/fstab
+    changed_when: false
+
+  - name: Remove specific entry from resolv.conf
+    lineinfile:
+      path: /etc/resolv.conf
+      state: absent
+      regexp: '^search .* kubes\.federalbank\.co\.in'
+
+  - name: Add entries to resolv.conf
+    lineinfile:
+      path: /etc/resolv.conf
+      line: "search federalbank.co.in"
+
+
+  - name: Add nameserver entries to resolv.conf
+    lineinfile:
+      path: /etc/resolv.conf
+      line: "{{ item }}"
+    with_items:
+      - "nameserver 10.250.4.21"
+      - "nameserver 10.251.4.21"
+
+  - name: Add dns=none to NetworkManager.conf
+    lineinfile:
+      path: /etc/NetworkManager/NetworkManager.conf
+      line: "dns=none"
+      insertafter: "^\\[main\\]"
+
+  - name: Restart NetworkManager service
+    systemd:
+      name: NetworkManager.service
+      enabled: yes
+      state: restarted
