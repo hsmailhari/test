@@ -124,3 +124,38 @@
       shell: partprobe
       changed_when: false
 
+---
+- name: Configure resolv.conf and NetworkManager.conf, and restart NetworkManager
+  hosts: your_target_host  # Replace with the target host or group of hosts
+  tasks:
+    - name: Remove specific entry from resolv.conf
+      lineinfile:
+        path: /etc/resolv.conf
+        state: absent
+        regexp: '^search .* kubes\.federalbank\.co\.in'
+
+    - name: Add nameserver entries to resolv.conf
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "{{ item }}"
+      with_items:
+        - "nameserver 10.250.4.21"
+        - "nameserver 10.251.4.21"
+
+    - name: Add dns=none to NetworkManager.conf
+      lineinfile:
+        path: /etc/NetworkManager/NetworkManager.conf
+        line: "dns=none"
+        insertafter: "^\\[main\\]"
+
+    - name: Restart NetworkManager service
+      systemd:
+        name: NetworkManager.service
+        enabled: yes
+        state: restarted
+
+    - name: Verify changes in resolv.conf
+      command: cat /etc/resolv.conf
+
+    - name: Verify changes in NetworkManager.conf
+      command: cat /etc/NetworkManager/NetworkManager.conf
