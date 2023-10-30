@@ -1,7 +1,14 @@
+
+    
     - name: Check existing block devices
       shell: lsblk
       register: lsblk_output
       changed_when: false
+
+    - name: Create a new partition on /dev/sdb
+      command: parted --script /dev/sdb mkpart primary ext4 1MiB 100%
+      changed_when: "'created' in result.stdout"
+      register: result
 
     - name: Create physical volume
       shell: pvcreate /dev/sdb1
