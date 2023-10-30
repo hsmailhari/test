@@ -1,1 +1,12 @@
-test
+lsblk
+pvcreate /dev/sdb1
+vgcreate ranchervg /dev/sdb1
+vgs
+lvcreate -n rancherlv -l 100%FREE ranchervg  ## name the volume
+lvs
+lvdisplay
+mkfs.xfs /dev/ranchervg/rancherlv
+mkdir -p /var/lib/rancher
+mount -v /dev/ranchervg/rancherlv /var/lib/rancher ## mount to a specific path  
+tail -n1 /etc/mtab >> /etc/fstab
+partprobe
