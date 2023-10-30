@@ -1,3 +1,11 @@
+partprobe
+mkfs.xfs /dev/sdb1
+mkdir -p /var/lib/docker
+mount -v /dev/sdb1 /var/lib/docker
+tail -n1 /etc/mtab >> /etc/fstab  
+
+
+
 lsblk
 pvcreate /dev/sdb1
 vgcreate ranchervg /dev/sdb1
