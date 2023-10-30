@@ -1,0 +1,55 @@
+    - name: Check existing block devices
+      shell: lsblk
+      register: lsblk_output
+      changed_when: false
+
+    - name: Create physical volume
+      shell: pvcreate /dev/sdb1
+      when: "'/dev/sdb1' not in lsblk_output.stdout"
+
+    - name: Create volume group
+      shell: vgcreate ranchervg /dev/sdb1
+      when: "'ranchervg' not in lsblk_output.stdout"
+
+    - name: Display volume group information
+      shell: vgs
+      changed_when: false
+
+    - name: Create logical volume
+      shell: lvcreate -n rancherlv -l 100%FREE ranchervg
+      when: "'rancherlv' not in lsblk_output.stdout"
+
+    - name: Display logical volume information
+      shell: lvs
+      changed_when: false
+
+    - name: Display logical volume details
+      shell: lvdisplay /dev/ranchervg/rancherlv
+      changed_when: false
+
+    - name: Create XFS filesystem
+      shell: mkfs.xfs /dev/ranchervg/rancherlv
+      changed_when: false
+
+    - name: Create directory for mount point
+      file:
+        path: /var/lib/rancher
+        state: directory
+
+    - name: Mount logical volume
+      mount:
+        path: /var/lib/rancher
+        src: /dev/ranchervg/rancherlv
+        fstype: xfs
+        state: mounted
+      changed_when: false
+
+    - name: Add entry to /etc/fstab
+      lineinfile:
+        path: /etc/fstab
+        line: "/dev/ranchervg/rancherlv /var/lib/rancher xfs defaults 0 0"
+      changed_when: false
+
+    - name: Update partition table
+      shell: partprobe
+      changed_when: false
