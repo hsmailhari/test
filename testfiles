@@ -19,3 +19,5 @@ or
 (sum(kube_pod_container_status_waiting_reason{reason="ContainerCreating",namespace=~"$namespace",pod=~"$pod"} ) by (reason,namespace,pod) >0) 
 -on(pod) group_right(reason) sum(kube_pod_info) by (pod,node,host_ip,pod_ip,namespace) 
 
+kube_pod_container_status_waiting_reason{reason=~"ContainerCreating|CrashLoopBackOff|ErrImagePull|ImagePullBackOff|CreateContainerConfigError", app_kubernetes_io_instance="prom"}
+
