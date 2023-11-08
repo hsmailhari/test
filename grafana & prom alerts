@@ -1,0 +1,896 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: 1m
+      folder: NodeAlerts
+      interval: 1m
+      rules:
+        - uid: fbfbe725-8143-4ce0-85c2-3701da71dcad
+          title: Node Cpu Usage - UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 60
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+                hide: false
+                instant: false
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 60
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              relativeTimeRange:
+                from: 60
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 90
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 1m
+          annotations:
+            description: Node Cpu Usage - UAT
+            summary: '{{ $labels.instance }} Node CPU Usage is more than 90'
+          isPaused: false
+    - orgId: 1
+      name: 6h
+      folder: NodeAlerts
+      interval: 1m
+      rules:
+        - uid: f1cf7a37-7cda-4f4a-a07c-efda33448467
+          title: NodeAlert-NodeDiskUsage-UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: max(100 - ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes)) by (instance)
+                hide: false
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 90
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            summary: '{{ $labels.instance }} Node Disk Usage is more than 90'
+          isPaused: false
+        - uid: ac44d09e-2463-44a7-8152-1a589be1c515
+          title: NodeAlert-NodeMemoryUsage-UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: 100*(node_memory_MemTotal_bytes - node_memory_MemFree_bytes - node_memory_Buffers_bytes - node_memory_Cached_bytes) / node_memory_MemTotal_bytes
+                hide: false
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 90
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            description: NodeAlert-NodeMemoryUsage-UAT
+            summary: '{{ $labels.instance }}  Following nodes are using more than 80% Memory'
+          isPaused: false
+        - uid: a69355b8-e444-41d2-ac65-d49d170e3f8f
+          title: NodeAlert-NodeNotReady-UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: kube_node_status_condition{condition=~"DiskPressure|NetworkUnavailable|PIDPressure|MemoryPressure", status!="false", app_kubernetes_io_instance="prom"}
+                hide: false
+                instant: false
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            summary: '{{ $labels.instance }} Following node/nodes are in not Ready state'
+          isPaused: false
+    - orgId: 1
+      name: 6h
+      folder: PodAlerts
+      interval: 1m
+      rules:
+        - uid: f4f445ff-658c-485d-aa81-f6f1a240334a
+          title: Pod Not Running - UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: kube_pod_container_status_waiting_reason{reason=~"ContainerCreating|CrashLoopBackOff|ErrImagePull|ImagePullBackOff|CreateContainerConfigError", app_kubernetes_io_instance="prom"}
+                hide: false
+                instant: false
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: true
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 1m
+          annotations:
+            summary: |-
+                Pod Details:
+                {{ $labels.container }}
+          isPaused: false
+        - uid: b1f8d95b-96c9-4fa4-8f29-a7df56aaa109
+          title: 'Pod eviction UAT '
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: 'kube_pod_status_phase{phase=~"Failed|Unknown"} '
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: B
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5h
+          annotations:
+            description: '{{ $labels.container }}'
+            summary: Pod eviction UAT
+          isPaused: false
+        - uid: a42fc943-af7d-4039-b9f4-adce01e152a1
+          title: CrashLoopBackOffPods - UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: sum(kube_pod_container_status_waiting_reason{reason=~"CrashLoopBackOff|ErrImagePull|ContainerCreating|CreateContainerConfigError"}) by (namespace, pod, container, reason) > 0
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 15m
+          annotations:
+            summary: Pod {{ $labels.pod }} in {{ $labels.namespace }} is in {{ $labels.reason }} state for more than 15 minutes.
+          isPaused: false
+        - uid: bb5facf5-a37d-454c-a616-10bfdd27a7e2
+          title: ContainerCreatingPods - UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: sum(kube_pod_container_status_waiting_reason{reason="ContainerCreating"}) by (namespace, pod, container) > 0
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 3m
+          annotations:
+            summary: Pod {{ $labels.pod }} in {{ $labels.namespace }} has container {{ $labels.container }} stuck in ContainerCreating state for more than 3 minutes.
+          isPaused: false
+        - uid: b984ebe8-ae7a-4cc7-ac33-7fa67df45980
+          title: 'ErrImagePullPods - UAT '
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: sum(kube_pod_container_status_waiting_reason{reason="ErrImagePull"}) by (namespace, pod, container) > 0
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: OK
+          execErrState: Error
+          for: 2m
+          annotations:
+            summary: Pod {{ $labels.pod }} in {{ $labels.namespace }} has container {{ $labels.container }} stuck in ErrImagePull state for more than 2 minute.
+          isPaused: false
+        - uid: bf810212-d4ea-4058-994b-b4b9ccb15c19
+          title: CreateContainerConfigErrorPods - UAT
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: sum(kube_pod_container_status_waiting_reason{reason="CreateContainerConfigError"}) by (namespace, pod, container) > 0
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: OK
+          execErrState: Error
+          for: 15m
+          annotations:
+            summary: Pod {{ $labels.pod }} in {{ $labels.namespace }} has container {{ $labels.container }} stuck in CreateContainerConfigError state for more than 15 minutes.
+          isPaused: false
+        - uid: f48fe0db-b33a-47d5-ba8c-5ad6a393c7b6
+          title: 'ImagePullBackOffPods - UAT '
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: sum(kube_pod_status_phase{phase="ImagePullBackOff"}) by (namespace, pod) > 0
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: OK
+          execErrState: Error
+          for: 10m
+          annotations:
+            summary: Pod {{ $labels.pod }} in {{ $labels.namespace }} is in ImagePullBackOff state for more than 10 minutes.
+          isPaused: false
+        - uid: f1642173-bca9-4ed4-a5cc-015972bc6574
+          title: Pod eviction UAT - 2
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: sum(kube_pod_status_phase{phase=~"Failed|Unknown|Pending"}) by (namespace, pod, phase) > 0
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            summary: Pod {{ $labels.pod }} in {{ $labels.namespace }} is in {{ $labels.phase }} state for more than 5 minutes.
+          isPaused: false
+        - uid: ad375c48-111a-4401-822e-4e89a81157e3
+          title: Pod Not Running - UAT - 2
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: a562b661-10a7-4a3d-b588-b2420f48a2e7
+              model:
+                editorMode: code
+                expr: sum(kube_pod_container_status_waiting_reason{reason=~"CrashLoopBackOff|ErrImagePull|ContainerCreating|CreateContainerConfigError"}) by (namespace, pod, container, reason) > 0
+                hide: false
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              relativeTimeRange:
+                from: 300
+                to: 0
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                            - null
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                hide: false
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          annotations:
+            summary: Pod {{ $labels.pod }} in {{ $labels.namespace }} is in {{ $labels.reason }} state for more than 5 minutes.
+          isPaused: false
