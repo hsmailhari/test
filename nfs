@@ -1,0 +1,15 @@
+fdisk -l   ## to identify new volumes.
+fdisk /dev/sdd ## to create new volume named sdd
+lsblk  ## to identify unmounted volumes
+partprobe /dev/sdd
+mkfs.xfs /dev/sdd1
+mkdir -p /nfs-empsearch
+mount -v /dev/sdd1 /nfs-empsearch ## mount the required location
+lsblk
+Open the file: vim /etc/exports and add a new entry Eg: */nfs_share      (rw,no_root_squash,no_subtree_check)
+exportfs -r
+Enable the following service: systemctl status nfs-server.service
+Check nfs share status showmount -e
+rpcinfo -p
+tail -n1 /etc/mtab >> /etc/fstab ## add entry to /etc fstab
+cat /etc/fstab
