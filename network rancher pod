@@ -1,0 +1,4 @@
+systemctl stop docker
+iptables --flush
+iptables -tnat -flush
+systemctl start docker
