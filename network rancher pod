@@ -1,3 +1,5 @@
+no route to host error in pods rancher
+
 systemctl stop docker
 iptables --flush
 iptables -tnat -flush
