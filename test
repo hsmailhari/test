@@ -1,0 +1,11 @@
+    log 127.0.0.1 local2
+    #log stdout format raw local0
+    daemon
+#    nbproc  4
+#    cpu-map  1 1
+#    cpu-map  2 2
+#    cpu-map  3 3
+#    cpu-map  4 4
+    nbthread 16
+    cpu-map 1/1-16 0-15
+    maxconn 1024000
